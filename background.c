@@ -27,6 +27,7 @@ int add_bp(struct bpid_list * bg, int bpid, int exitstatus) {
             }
             current->next = new;
         }
+        bg->size++;
         return 1;
     }
     return 0;
@@ -40,6 +41,7 @@ int remove_bp(struct bpid_list * bg, int bpid) {
         bg->head = bg->head->next;
         free(target);
         target = NULL;
+        bg->size--;
         return 1;
     } else {
         struct bpid_list_node * current = bg->head;
@@ -51,6 +53,7 @@ int remove_bp(struct bpid_list * bg, int bpid) {
             current->next = current->next->next;
             free(target);
             target = NULL;
+            bg->size--;
             return 1;
         }
         return 0;

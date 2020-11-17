@@ -62,69 +62,95 @@ void free_tokens(char **tokens) {
     free(tokens); // then free the array
 }
 
-int runcmd(char ** command, struct bpid_list * bg) {
-    if(!strcmp(command[0], "exit")) {
-        free_tokens(command);
-        exit(0);
-    } else if (!strcmp(command[0], "jobs")) {
-        if(bg->size > 0) {
-            printf("Processes currently active: ");
-            struct bpid_list_node * current = bg->head;
-            while(current->next != NULL) {
-                printf("%d, ", current->bpid);
-                current = current->next;
-            }
-            printf("%d\n", current->bpid);
-            return 1;
-        } else if(bg->size == 0) {
-            printf("No background processes currently active\n");
-        }
-    } else if (!strcmp(command[0], "kill")) {
-        int bpid = atoi(command[1]);
-        if(remove_bp(bg, bpid)) {
-            kill(bpid, SIGKILL);
-            return 1;
-        } 
-    } else if (command[0] != NULL) {
-        
-        int i = 0;
-        while(command[i+1] != NULL) {
-            i++;
-        }
+void cmd_exit(char ** command) {
+    free_tokens(command);
+    exit(0);
+}
 
-        if(command[i][0] == '&') {
-            int bpid = fork();
-            if(bpid == 0) {
-                command[i] = NULL;
-                add_bp(bg, bpid, (int) NULL);
-                printf("Created background process %d", getpid());
-                if(execv(command[0], command) < 0) {
-                    fprintf(stderr, "File \"%s\" not found\n", command[0]);
-                }
-                exit((int) NULL);
-            } else if(bpid > 0) {
-                add_bp(bg, bpid, (int) NULL);
-                return 1;
-            }
-        } else {
-            int pid = fork();
-            if(pid == 0) {
-                if(execv(command[0], command) < 0) {
-                    fprintf(stderr, "File \"%s\" not found\n", command[0]);
-                }
-                exit((int) NULL);
-            } else if(pid > 0) {
-                waitpid(pid, NULL, (int) NULL);
-                return 1;
-            }
+void cmd_jobs(struct bpid_list * bg) {
+    if(bg->size > 0) {
+        printf("Processes currently active: ");
+        struct bpid_list_node * current = bg->head;
+        while(current->next != NULL) {
+            printf("%d, ", current->bpid);
+            current = current->next;
         }
-    } 
+        printf("%d\n", current->bpid);
+    } else if(bg->size == 0) {
+        printf("No background processes currently active\n");
+    }
+}
+
+void cmd_kill(char ** command, struct bpid_list * bg) {
+    int bpid = atoi(command[1]);
+    if(remove_bp(bg, bpid)) {
+        printf("Process %d has been killed\n", bpid);
+        kill(bpid, SIGKILL);
+    } else {
+        printf("Process %d not found\n", bpid);
+    }
+}
+
+void cmd_extern(char ** command) {
+    int pid = fork();
+    if(pid == 0) { // child process
+        if(execv(command[0], command) < 0) {
+            fprintf(stderr, "File \"%s\" not found\n", command[0]);
+        }
+    } else if(pid > 0) { // parent process
+        waitpid(pid, 0, 0);
+    }
+}
+
+int cmd_is_bg(char ** command) {
+    int i = 0;
+    while(command[i+1] != NULL) {
+        i++;
+    }
+
+    if(command[i][0] == '&') {
+        return i;
+    }
     
-
     return 0;
 }
 
+void cmd_extern_bg(char ** command, struct bpid_list * bg) {
+    int bpid = fork();
+    if(bpid == 0) { // child process
+        
+        if(execv(command[0], command) < 0) {
+            fprintf(stderr, "File \"%s\" not found\n", command[0]);
+        }
+        exit(0);
+    } else if(bpid > 0) { // parent process
+        printf("Created background process %d\n", bpid);
+        add_bp(bg, bpid, 0);
+    }
+}
+
+void runcmd(char ** command, struct bpid_list * bg) {
+    if(command[0] == NULL) return; // primary check to see if valid command
+
+    if(!strcmp(command[0], "exit")) { // command is an exit cmd
+        cmd_exit(command);
+    } else if (!strcmp(command[0], "jobs")) { // command is a jobs cmd
+        cmd_jobs(bg);
+    } else if (!strcmp(command[0], "kill")) { // command is a kill cmd
+        cmd_kill(command, bg);
+    } else { // command is external
+        int i = cmd_is_bg(command);
+        if(i) { // command is background
+            command[i] = NULL;
+            cmd_extern_bg(command, bg);
+        } else { // command is normal
+            cmd_extern(command);
+        }
+    }
+}
+
 int main(int argc, char **argv) {
+    //clear();
     // main loop for the shell
     printf("%s", PROMPT);
     fflush(stdout);  // Display the prompt immediately
