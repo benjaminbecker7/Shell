@@ -14,6 +14,7 @@ struct bpid_list {
     int size;
 };
 
+void free_background(struct bpid_list * bg);
 struct bpid_list * init_background();
 int add_bp(struct bpid_list * bg, int bpid, int exitstatus);
 int remove_bp(struct bpid_list * bg, int bpid);

@@ -60,6 +60,15 @@ int remove_bp(struct bpid_list * bg, int bpid) {
     }
 }
 
+void free_background(struct bpid_list * bg) {
+    while(bg->size > 0) {
+        kill(bg->head->bpid, SIGKILL);
+        remove_bp(bg, bg->head->bpid);
+    }
+    free(bg);
+    bg = NULL;
+}
+
 void manage_background(struct bpid_list * bg) {
     struct bpid_list_node * current = bg->head;
     while(current != NULL) {
