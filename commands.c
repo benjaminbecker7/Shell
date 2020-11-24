@@ -85,6 +85,7 @@ void cmd_extern(char ** command) {
         if(execv(command[0], command) < 0) {
             fprintf(stderr, "File \"%s\" not found\n", command[0]);
         }
+        exit(0);
     } else if(pid > 0) { // parent process
         waitpid(pid, 0, 0);
     }
@@ -136,7 +137,7 @@ void runcmd(char ** command, struct bpid_list * bg) {
         cmd_jobs(bg);
     } else if (!strcmp(command[0], "kill")) { // command is a kill cmd
         cmd_kill(command, bg);
-    } else { // command is external
+    } else if (command[0][0] == '/') { // command is external
         int i = cmd_is_bg(command);
         if(i) { // command is background
             command[i] = NULL;
@@ -144,5 +145,7 @@ void runcmd(char ** command, struct bpid_list * bg) {
         } else { // command is normal
             cmd_extern(command);
         }
+    } else {
+        printf("Command not found. Enter \"help\" for a list of available commands\n");
     }
 }
