@@ -28,14 +28,15 @@ void cmd_help() {
     printf("Built-In Commands:\n");
     printf("\033[0m");
     printf("To exit the shell, enter the command \"exit\"\n");
+    printf("To change the current directory, enter \"cd\"\
+        followed by the directory or path you would like to be in");
     printf("To view the processes currently running in the background,\n\
         enter the command \"jobs\"\n");
     printf("To kill a background process currently running, enter the\n\
-        command \"kill\" followed by the number of the process you\n\twould like to kill\n\n");
+        command \"kill\" followed by the number of the process\n\
+        you would like to kill\n\n");
 
-    printf("\033[1m");
-    printf("External Commands:\n");
-    printf("\033[0m");
+    printf("\033[1mExternal Commands:\033[0m\n");
     printf("To run a command off of a file, enter the file path\n");
     printf("To run a command off of a file in the background, enter\n\
         the file path followed by an ampersand (&)\n");
@@ -71,7 +72,9 @@ void cmd_kill(char ** command, struct bpid_list * bg) {
         printf("Process %d has been killed\n", bpid);
         kill(bpid, SIGKILL);
     } else {
-        printf("Process %d not found\n", bpid);
+        printf("\033[0;31m");
+        printf("Background Process Error: Process %d not found\n", bpid);
+        printf("\033[0m");
     }
 }
 
@@ -83,7 +86,9 @@ void cmd_extern(char ** command) {
     int pid = fork();
     if(pid == 0) { // child process
         if(execv(command[0], command) < 0) {
-            fprintf(stderr, "File \"%s\" not found\n", command[0]);
+            printf("\033[0;31m");
+            printf("External Command Error: File \"%s\" not found\n", command[0]);
+            printf("\033[0m");
         }
         exit(0);
     } else if(pid > 0) { // parent process
@@ -109,14 +114,18 @@ void cmd_extern_bg(char ** command, struct bpid_list * bg) {
     if(bpid == 0) { // child process
         
         if(execv(command[0], command) < 0) {
-            fprintf(stderr, "File \"%s\" not found\n", command[0]);
+            printf("\033[0;31m");
+            printf("External Command Error: File \"%s\" not found\n", command[0]);
+            printf("\033[0m");
         }
         exit(0);
     } else if(bpid > 0) { // parent process
         if(add_bp(bg, bpid, 0)) {
             printf("Created background process %d\n", bpid);
         } else {
-            printf("Not enough space in background, killing process\n");
+            printf("\033[0;31m");
+            printf("Background Process Error: Not enough space in background, killing process\n");
+            printf("\033[0m");
             kill(bpid, SIGKILL);
         }
     }
