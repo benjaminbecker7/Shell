@@ -10,6 +10,8 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include "background.h"
+#include "commands.h"
+#include "shell.h"
 
 #define PROMPT "shell> "
 
@@ -63,10 +65,15 @@ void free_tokens(char **tokens) {
 }
 
 void display_welcome() {
+    printf("\033[1;36m");
     printf("--------------------------------------\n");
     printf("| Welcome to the Ben and Alex Shell! |\n");
     printf("|             (aka BASH)             |\n");
     printf("--------------------------------------\n");
+    printf("\033[0m");
+    printf("\033[1m");
+    printf("For help with this shell, enter \"help\"\n");
+    printf("\033[0m");
 }
 
 int main(int argc, char **argv) {

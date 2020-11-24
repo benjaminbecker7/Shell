@@ -7,15 +7,48 @@
 #include "background.h"
 #include "shell.h"
 
+//*********************BUILT-IN COMMANDS*****************************************
+
 /**
  * Frees occupied memory and exits the program.
  * @param command the command array that needs to be freed before exit
  * @param bg the list of background processes running at the end of the program
  */
 void cmd_exit(char ** command, struct bpid_list * bg) {
+    printf("Logging out...\n");
     free_tokens(command);
     free_background(bg);
     exit(0);
+}
+
+void cmd_help() {
+    printf("\033[1m");
+    printf("This is a shell by Benjamin Becker and Alex Wu\n\n");
+    
+    printf("Built-In Commands:\n");
+    printf("\033[0m");
+    printf("To exit the shell, enter the command \"exit\"\n");
+    printf("To view the processes currently running in the background,\n\
+        enter the command \"jobs\"\n");
+    printf("To kill a background process currently running, enter the\n\
+        command \"kill\" followed by the number of the process you\n\twould like to kill\n\n");
+
+    printf("\033[1m");
+    printf("External Commands:\n");
+    printf("\033[0m");
+    printf("To run a command off of a file, enter the file path\n");
+    printf("To run a command off of a file in the background, enter\n\
+        the file path followed by an ampersand (&)\n");
+}
+
+void cmd_cd(char ** command) {
+    if(command[1] != NULL) {
+        if(chdir(command[1]) != 0) {
+            printf("Directory %s not found\n", command[1]);
+        }
+    } else {
+        printf("cd: please provide a directory\n");
+    }
 }
 
 void cmd_jobs(struct bpid_list * bg) {
@@ -41,6 +74,10 @@ void cmd_kill(char ** command, struct bpid_list * bg) {
         printf("Process %d not found\n", bpid);
     }
 }
+
+//****************************************************************************
+
+//*****************EXTERNAL COMMANDS******************************************
 
 void cmd_extern(char ** command) {
     int pid = fork();
@@ -84,11 +121,17 @@ void cmd_extern_bg(char ** command, struct bpid_list * bg) {
     }
 }
 
+//*************************************************************************
+
 void runcmd(char ** command, struct bpid_list * bg) {
     if(command[0] == NULL) return; // primary check to see if valid command
 
     if(!strcmp(command[0], "exit")) { // command is an exit cmd
         cmd_exit(command, bg);
+    } else if (!strcmp(command[0], "help")) {
+        cmd_help();
+    } else if (!strcmp(command[0], "cd")) {
+        cmd_cd(command);
     } else if (!strcmp(command[0], "jobs")) { // command is a jobs cmd
         cmd_jobs(bg);
     } else if (!strcmp(command[0], "kill")) { // command is a kill cmd
