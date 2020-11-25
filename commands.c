@@ -22,6 +22,24 @@ void cmd_exit(char ** command, struct bpid_list * bg) {
     exit(0);
 }
 
+int redirect_file(char ** command) {
+    int i = 0;
+    while(command[i] != NULL) {
+        if(command[i][0] == '>' && command[i+1] != NULL) {
+            command[i] = NULL;
+            return i+1;
+        }
+        i++;
+    } 
+    return 0;
+}
+
+void set_output_stream(char * filename) {
+    FILE * file = fopen(filename, "w");
+    dup2(fileno(file), STDOUT_FILENO);
+    fclose(file);
+}
+
 void cmd_help() {
     printf("\033[1m");
     printf("This is a shell by Benjamin Becker and Alex Wu\n\n");
@@ -89,10 +107,15 @@ void cmd_kill(char ** command, struct bpid_list * bg) {
 //*****************EXTERNAL COMMANDS******************************************
 
 void cmd_extern(char ** command) {
+
     int pid = fork();
     if(pid == 0) { // child process
+        int i = redirect_file(command);
+        if(i) {
+            set_output_stream(command[i]);
+        }
         if(execv(command[0], command) < 0) {
-            printf("\033[0;31mExternal Command Error: File \"%s\" not found\033[0m\n", command[0]);
+            fprintf(stdout, "\033[0;31mExternal Command Error: File \"%s\" not found\033[0m\n", command[0]);
         }
         exit(0);
     } else if(pid > 0) { // parent process
@@ -102,12 +125,12 @@ void cmd_extern(char ** command) {
 
 int cmd_is_bg(char ** command) {
     int i = 0;
-    while(command[i+1] != NULL) {
+    while(command[i] != NULL) {
         i++;
     }
 
-    if(command[i][0] == '&') {
-        return i;
+    if(command[i-1][0] == '&') {
+        return i-1;
     }
     
     return 0;
@@ -116,7 +139,10 @@ int cmd_is_bg(char ** command) {
 void cmd_extern_bg(char ** command, struct bpid_list * bg) {
     int bpid = fork();
     if(bpid == 0) { // child process
-        
+        int i = redirect_file(command);
+        if(i) {
+            set_output_stream(command[i]);
+        }
         if(execv(command[0], command) < 0) {
             printf("\033[0;31mExternal Command Error: File \"%s\" not found\033[0m\n", command[0]);
         }
@@ -150,13 +176,13 @@ void runcmd(char ** command, struct bpid_list * bg) {
         cmd_kill(command, bg);
     } else if (command[0][0] == '/') { // command is external
         int i = cmd_is_bg(command);
-        if(i) { // command is background
+        if(i && i != -1) { // command is background
             command[i] = NULL;
             cmd_extern_bg(command, bg);
         } else { // command is normal
             cmd_extern(command);
         }
     } else {
-        printf("Command not found. Enter \"help\" for a list of available commands\n");
+        printf("\033[0;31mCommand not found. Enter \"help\" for a list of available commands\033[0m\n");
     }
 }
