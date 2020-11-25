@@ -1,7 +1,7 @@
 .PHONY: clean
 CC=clang
 CFLAGS=-I. -g -Wall --std=gnu11 -fpic
-SRCS=shell.c background.c commands.c background_test.c shell_test.c
+SRCS=shell.c background.c commands.c
 OBJS=$(patsubst %.c,%.o,$(SRCS))
 PROGRAM=shell
 
