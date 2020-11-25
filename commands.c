@@ -22,6 +22,13 @@ void cmd_exit(char ** command, struct bpid_list * bg) {
     exit(0);
 }
 
+/**
+ * Determines whether then command is redirecting output to a file. 
+ * Inserts a NULL pointer at the position of the file redirect token
+ * in the command array.
+ * @return the index of the filename in the command array if the command
+ * is redirecting output, otherwise 0
+ */
 int redirect_file(char ** command) {
     int i = 0;
     while(command[i] != NULL) {
@@ -34,12 +41,20 @@ int redirect_file(char ** command) {
     return 0;
 }
 
+/**
+ * Helper function that sets the output stream to a file.
+ * @param filename pointer to string containing the name of the file to which output will be written
+ */
 void set_output_stream(char * filename) {
     FILE * file = fopen(filename, "w");
     dup2(fileno(file), STDOUT_FILENO);
     fclose(file);
 }
 
+/**
+ * Command function that outputs to stream the explanations 
+ * of available commands for the shell.
+ */
 void cmd_help() {
     printf("\033[1;36mThis is a shell by Benjamin Becker and Alex Wu\033[0m\n\n");
 
@@ -67,9 +82,14 @@ void cmd_help() {
     printf("To view this screen again, enter \"help\"\n");
 }
 
+/**
+ * Command function that changes the current working directory 
+ * for the shell to a directory specified in the command array.
+ * @param command the tokenized command terminated by a NULL pointer
+ */
 void cmd_cd(char ** command) {
     if(command[1] != NULL) {
-        if(chdir(command[1]) != 0) {
+        if(chdir(command[1])) {
             printf("Directory %s not found\n", command[1]);
         }
     } else {
@@ -77,6 +97,9 @@ void cmd_cd(char ** command) {
     }
 }
 
+/**
+ * Prints the current working directory to the stream.
+ */
 void cmd_getcwd() {
     printf("You are currently in %s\n", strrchr(getcwd(NULL, MAX_PATH_LENGTH), '/'));
 } 
@@ -162,6 +185,13 @@ void cmd_extern_bg(char ** command, struct bpid_list * bg) {
 
 //*************************************************************************
 
+/**
+ * Takes in a tokenized command string terminated by a NULL pointer and the
+ * list of background processes currently running, and decides which
+ * command to execute.
+ * @param command the tokenized command terminated by a NULL pointer
+ * @param bg the list of processes running in the background
+ */
 void runcmd(char ** command, struct bpid_list * bg) {
     if(command[0] == NULL) return; // primary check to see if valid command
 
