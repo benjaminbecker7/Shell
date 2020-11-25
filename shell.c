@@ -80,11 +80,7 @@ int main(int argc, char **argv) {
     system("reset");
     display_welcome();
     // main loop for the shell
-    cwd = malloc(sizeof(char) * MAX_PATH_LENGTH);
-    if(getcwd(cwd, MAX_PATH_LENGTH) != NULL) {
-        cwd = strrchr(cwd, '/');
-    }
-    printf("%s(%s) ", PROMPT, cwd);
+    printf("%s ", PROMPT);
     fflush(stdout);  // Display the prompt immediately
     char buffer[1024];
 
@@ -98,11 +94,8 @@ int main(int argc, char **argv) {
         runcmd(command, bg); // run command
 
         free_tokens(command); // 
-
-        if(getcwd(cwd, MAX_PATH_LENGTH) != NULL) {
-            cwd = strrchr(cwd, '/');
-        }
-        printf("%s(%s) ", PROMPT, cwd);
+        
+        printf("%s ", PROMPT);
         fflush(stdout);  // Display the prompt immediately
     }
 

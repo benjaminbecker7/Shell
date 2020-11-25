@@ -5,6 +5,7 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include "background.h"
+#include "commands.h"
 #include "shell.h"
 
 //*********************BUILT-IN COMMANDS*****************************************
@@ -28,8 +29,9 @@ void cmd_help() {
     printf("Built-In Commands:\n");
     printf("\033[0m");
     printf("To exit the shell, enter the command \"exit\"\n");
-    printf("To change the current directory, enter \"cd\"\
-        followed by the directory or path you would like to be in");
+    printf("To change the current directory, enter \"cd\"\n\
+        followed by the directory or path you would like to be in\n");
+    printf("To view your current working directory, enter \"getcwd\"\n");
     printf("To view the processes currently running in the background,\n\
         enter the command \"jobs\"\n");
     printf("To kill a background process currently running, enter the\n\
@@ -51,6 +53,10 @@ void cmd_cd(char ** command) {
         printf("cd: please provide a directory\n");
     }
 }
+
+void cmd_getcwd() {
+    printf("You are currently in %s\n", strrchr(getcwd(NULL, MAX_PATH_LENGTH), '/'));
+} 
 
 void cmd_jobs(struct bpid_list * bg) {
     if(bg->size > 0) {
@@ -140,6 +146,8 @@ void runcmd(char ** command, struct bpid_list * bg) {
         cmd_exit(command, bg);
     } else if (!strcmp(command[0], "help")) {
         cmd_help();
+    } else if (!strcmp(command[0], "getcwd")) {
+        cmd_getcwd();
     } else if (!strcmp(command[0], "cd")) {
         cmd_cd(command);
     } else if (!strcmp(command[0], "jobs")) { // command is a jobs cmd
