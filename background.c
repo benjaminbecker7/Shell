@@ -72,16 +72,17 @@ void free_background(struct bpid_list * bg) {
 void manage_background(struct bpid_list * bg) {
     struct bpid_list_node * current = bg->head;
     while(current != NULL) {
-        // printf("bg process exists\n"); // test to see if there is still a bg process after kill
+        //printf("bg process exists\n"); // test to see if there is still a bg process after kill
         int status = waitpid(current->bpid, current->exitstatus, WNOHANG);
         if(status > 0) {
             struct bpid_list_node * next = current->next;
-            printf("%d finished with exit code %d\n", current->bpid, *(current->exitstatus));
+            printf("%d finished with exit code %d\n", status, *(current->exitstatus));
             remove_bp(bg, current->bpid);
             current = next;
         } else if(status < 0) {
             fprintf(stderr, "Process %d has encountered an error\n", current->bpid);
+        } else {
+            current = current->next;
         }
-        current = current->next;
     }
 }

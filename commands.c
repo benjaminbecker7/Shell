@@ -28,20 +28,22 @@ void cmd_help() {
     
     printf("Built-In Commands:\n");
     printf("\033[0m");
-    printf("To exit the shell, enter the command \"exit\"\n");
-    printf("To change the current directory, enter \"cd\"\n\
-        followed by the directory or path you would like to be in\n");
-    printf("To view your current working directory, enter \"getcwd\"\n");
-    printf("To view the processes currently running in the background,\n\
-        enter the command \"jobs\"\n");
-    printf("To kill a background process currently running, enter the\n\
-        command \"kill\" followed by the number of the process\n\
-        you would like to kill\n\n");
+    printf("\texit:\tTo exit the shell, enter the command \"exit\"\n");
+    printf("\tcd:\tTo change the current directory, enter \"cd\" followed\n\
+        \tby the directory or path you would like to be in\n");
+    printf("\tgetcwd:\tTo view your current working directory, enter \"getcwd\"\n");
+    printf("\tjobs:\tTo view the processes currently running in the background,\n\
+        \tenter the command \"jobs\"\n");
+    printf("\tkill:\tTo kill a background process currently running, enter the\n\
+        \tcommand \"kill\" followed by the number of the process\n\
+        \tyou would like to kill\n\n");
 
     printf("\033[1mExternal Commands:\033[0m\n");
-    printf("To run a command off of a file, enter the file path\n");
-    printf("To run a command off of a file in the background, enter\n\
-        the file path followed by an ampersand (&)\n");
+    printf("\tTo run a command off of a file, enter the file path\n");
+    printf("\tTo run a command off of a file in the background, enter\n\
+        \tthe file path followed by an ampersand (&)\n\n");
+
+    printf("To view this screen again, enter \"help\"\n");
 }
 
 void cmd_cd(char ** command) {
