@@ -41,11 +41,9 @@ void set_output_stream(char * filename) {
 }
 
 void cmd_help() {
-    printf("\033[1m");
-    printf("This is a shell by Benjamin Becker and Alex Wu\n\n");
-    
-    printf("Built-In Commands:\n");
-    printf("\033[0m");
+    printf("\033[1;36mThis is a shell by Benjamin Becker and Alex Wu\033[0m\n\n");
+
+    printf("\033[1mBuilt-In Commands:\033[0m\n");
     printf("\texit:\tTo exit the shell, enter the command \"exit\"\n");
     printf("\tcd:\tTo change the current directory, enter \"cd\" followed\n\
         \tby the directory or path you would like to be in\n");
@@ -60,6 +58,11 @@ void cmd_help() {
     printf("\tTo run a command off of a file, enter the file path\n");
     printf("\tTo run a command off of a file in the background, enter\n\
         \tthe file path followed by an ampersand (&)\n\n");
+
+    printf("\033[1mRedirecting Output:\033[0m\n");
+    printf("\tTo redirect the output of a command to a file, enter the\n\
+        \tcommand followed by an arrow (\">\") followed by the\n\
+        \tfilename\n\n");
 
     printf("To view this screen again, enter \"help\"\n");
 }
