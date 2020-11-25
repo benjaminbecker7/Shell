@@ -47,7 +47,9 @@ int redirect_file(char ** command) {
  */
 void set_output_stream(char * filename) {
     FILE * file = fopen(filename, "w");
-    dup2(fileno(file), STDOUT_FILENO);
+    if(dup2(fileno(file), STDOUT_FILENO) == -1) {
+        printf("\033[0;31mFile Redirect Error: File %s could not be written to\033[0m\n", filename);
+    }
     fclose(file);
 }
 
