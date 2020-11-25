@@ -80,9 +80,7 @@ void cmd_kill(char ** command, struct bpid_list * bg) {
         printf("Process %d has been killed\n", bpid);
         kill(bpid, SIGKILL);
     } else {
-        printf("\033[0;31m");
-        printf("Background Process Error: Process %d not found\n", bpid);
-        printf("\033[0m");
+        printf("\033[0;31mBackground Process Error: Process %d not found\033[0m\n", bpid);
     }
 }
 
@@ -94,9 +92,7 @@ void cmd_extern(char ** command) {
     int pid = fork();
     if(pid == 0) { // child process
         if(execv(command[0], command) < 0) {
-            printf("\033[0;31m");
-            printf("External Command Error: File \"%s\" not found\n", command[0]);
-            printf("\033[0m");
+            printf("\033[0;31mExternal Command Error: File \"%s\" not found\033[0m\n", command[0]);
         }
         exit(0);
     } else if(pid > 0) { // parent process
@@ -122,18 +118,14 @@ void cmd_extern_bg(char ** command, struct bpid_list * bg) {
     if(bpid == 0) { // child process
         
         if(execv(command[0], command) < 0) {
-            printf("\033[0;31m");
-            printf("External Command Error: File \"%s\" not found\n", command[0]);
-            printf("\033[0m");
+            printf("\033[0;31mExternal Command Error: File \"%s\" not found\033[0m\n", command[0]);
         }
         exit(0);
     } else if(bpid > 0) { // parent process
         if(add_bp(bg, bpid, 0)) {
             printf("Created background process %d\n", bpid);
         } else {
-            printf("\033[0;31m");
-            printf("Background Process Error: Not enough space in background, killing process\n");
-            printf("\033[0m");
+            printf("\033[0;31mBackground Process Error: Not enough space in background, killing process\033[0m\n");
             kill(bpid, SIGKILL);
         }
     }
