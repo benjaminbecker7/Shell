@@ -27,7 +27,7 @@ void cmd_exit(char ** command, struct bpid_list * bg) {
  * Inserts a NULL pointer at the position of the file redirect token
  * in the command array.
  * @return the index of the filename in the command array if the command
- * is redirecting output, otherwise 0
+ * is redirecting output, otherwise 0.
  */
 int redirect_file(char ** command) {
     int i = 0;
@@ -43,7 +43,7 @@ int redirect_file(char ** command) {
 
 /**
  * Helper function that sets the output stream to a file.
- * @param filename pointer to string containing the name of the file to which output will be written
+ * @param filename pointer to string containing the name of the file to which output will be written.
  */
 void set_output_stream(char * filename) {
     FILE * file = fopen(filename, "w");
@@ -87,7 +87,7 @@ void cmd_help() {
 /**
  * Command function that changes the current working directory 
  * for the shell to a directory specified in the command array.
- * @param command the tokenized command terminated by a NULL pointer
+ * @param command the tokenized command terminated by a NULL pointer.
  */
 void cmd_cd(char ** command) {
     if(command[1] != NULL) {
@@ -106,6 +106,10 @@ void cmd_getcwd() {
     printf("You are currently in %s\n", strrchr(getcwd(NULL, MAX_PATH_LENGTH), '/'));
 } 
 
+/**
+ * Displays the processes currently running in the background.
+ * @param bg points to the list of processes currently running in the background.
+ */
 void cmd_jobs(struct bpid_list * bg) {
     if(bg->size > 0) {
         printf("Processes currently active: ");
@@ -120,6 +124,11 @@ void cmd_jobs(struct bpid_list * bg) {
     }
 }
 
+/**
+ * Kills a background process that is currently running.
+ * @param command the tokenized command terminated by a NULL pointer.
+ * @param bg points to the list of processes currently running in the background.
+ */
 void cmd_kill(char ** command, struct bpid_list * bg) {
     int bpid = atoi(command[1]);
     if(remove_bp(bg, bpid)) {
@@ -130,6 +139,10 @@ void cmd_kill(char ** command, struct bpid_list * bg) {
     }
 }
 
+/**
+ * Prints whatever follows the echo command to the stream.
+ * @param command the tokenized command terminated by a NULL pointer.
+ */
 void cmd_echo(char ** command) {
     if(command[1] == NULL) {
         printf("\n");
@@ -147,6 +160,10 @@ void cmd_echo(char ** command) {
 
 //*****************EXTERNAL COMMANDS******************************************
 
+/**
+ * Runs a shell process or script off of a file.
+ * @param command the tokenized command terminated by a NULL pointer.
+ */
 void cmd_extern(char ** command) {
 
     int pid = fork();
@@ -164,19 +181,45 @@ void cmd_extern(char ** command) {
     }
 }
 
+/**
+ * Helper function to determine if a command is supposed to run 
+ * in the background (i.e. the last item in the command list 
+ * is an ampersand). 
+ * 
+ * The beauty of this function is that its return value serves 
+ * two purposes: 
+ * 1) it returns a value that the compiler interprets as true if 
+ *      the command designates a background process and false if 
+ *      not, and 
+ * 2) the value it returns corresponds to the position of the 
+ *      ampersand in the command list, so that any function 
+ *      using it can set that position to a NULL pointer, 
+ *      allowing for the command string to be fed into the 
+ *      execv function as it normally would.
+ * @param command the tokenized command terminated by a NULL pointer.
+ * @return the index of the ampersand item in the command list if command 
+ * designates a background process, otherwise 0.
+ */
 int cmd_is_bg(char ** command) {
     int i = 0;
-    while(command[i] != NULL) {
+    while(command[i] != NULL) { // find the end of the command list
         i++;
     }
 
-    if(command[i-1][0] == '&') {
-        return i-1;
+    if(command[i-1][0] == '&') {    // Figure out if the item before the NULL
+                                    // pointer is an ampersand.
+        return i-1;                 // Return the position of the ampersand.
     }
     
     return 0;
 }
 
+/**
+ * Executes a shell process or script off of a file and runs it in 
+ * the background of the shell.
+ * @param command the tokenized command terminated by a NULL pointer.
+ * @param points to the list of processes currently running in the background.
+ */
 void cmd_extern_bg(char ** command, struct bpid_list * bg) {
     int bpid = fork();
     if(bpid == 0) { // child process
@@ -210,29 +253,29 @@ void cmd_extern_bg(char ** command, struct bpid_list * bg) {
 void runcmd(char ** command, struct bpid_list * bg) {
     if(command[0] == NULL) return; // primary check to see if valid command
 
-    if(!strcmp(command[0], "exit")) { // command is an exit cmd
+    if(!strcmp(command[0], "exit")) { // command is exit cmd
         cmd_exit(command, bg);
-    } else if (!strcmp(command[0], "help")) {
+    } else if (!strcmp(command[0], "help")) { // command is help cmd
         cmd_help();
-    } else if (!strcmp(command[0], "getcwd")) {
+    } else if (!strcmp(command[0], "getcwd")) { // command is getcwd cmd
         cmd_getcwd();
-    } else if (!strcmp(command[0], "cd")) {
+    } else if (!strcmp(command[0], "cd")) { // command is cd cmd
         cmd_cd(command);
-    } else if(!strcmp(command[0], "echo")) {
+    } else if(!strcmp(command[0], "echo")) { // command is echo cmd
         cmd_echo(command);
-    } else if (!strcmp(command[0], "jobs")) { // command is a jobs cmd
+    } else if (!strcmp(command[0], "jobs")) { // command is jobs cmd
         cmd_jobs(bg);
-    } else if (!strcmp(command[0], "kill")) { // command is a kill cmd
+    } else if (!strcmp(command[0], "kill")) { // command is kill cmd
         cmd_kill(command, bg);
     } else if (command[0][0] == '/') { // command is external
         int i = cmd_is_bg(command);
         if(i && i != -1) { // command is background
             command[i] = NULL;
             cmd_extern_bg(command, bg);
-        } else { // command is normal
+        } else { // command is foreground (normal)
             cmd_extern(command);
         }
-    } else {
+    } else { // command is not found
         printf("\033[0;31mCommand not found. Enter \"help\" for a list of available commands\033[0m\n");
     }
 }
