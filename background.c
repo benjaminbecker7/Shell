@@ -39,6 +39,7 @@ int remove_bp(struct bpid_list * bg, int bpid) {
     } else if(bg->head->bpid == bpid) {
         struct bpid_list_node * target = bg->head;
         bg->head = bg->head->next;
+        free(target->exitstatus);
         free(target);
         target = NULL;
         bg->size--;

@@ -130,6 +130,19 @@ void cmd_kill(char ** command, struct bpid_list * bg) {
     }
 }
 
+void cmd_echo(char ** command) {
+    if(command[1] == NULL) {
+        printf("\n");
+    }
+    int i = 1;
+    while(command[i+1] != NULL) {
+        printf("%s ", command[i]);
+        i++;
+    }
+
+    printf("%s\n", command[i]);
+}
+
 //****************************************************************************
 
 //*****************EXTERNAL COMMANDS******************************************
@@ -205,6 +218,8 @@ void runcmd(char ** command, struct bpid_list * bg) {
         cmd_getcwd();
     } else if (!strcmp(command[0], "cd")) {
         cmd_cd(command);
+    } else if(!strcmp(command[0], "echo")) {
+        cmd_echo(command);
     } else if (!strcmp(command[0], "jobs")) { // command is a jobs cmd
         cmd_jobs(bg);
     } else if (!strcmp(command[0], "kill")) { // command is a kill cmd
