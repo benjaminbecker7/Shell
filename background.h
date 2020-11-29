@@ -10,26 +10,24 @@
 /**
  * Struct representing individual process running in the background of
  * the shell.
- * bpid is the id of the background process.
- * exitstatus points to the integer that is supposed to be the exit status
- * of the background process.
- * next points to the next bpid_list_node in the bpid list.
  */
 struct bpid_list_node {
-    int bpid;
-    int * exitstatus;
-    struct bpid_list_node * next;
+    int bpid;                       // The id of the background process.
+    
+    int * exitstatus;               // Points to the integer that is supposed to 
+                                    // be the exit status of the background process.
+    
+    struct bpid_list_node * next;   // Points to the next bpid_list_node in the bpid 
+                                    // list.
 };
 
 /**
  * Struct representing the list of processes running in the background
  * of the shell.
- * head points to the node at the head of the list.
- * size stores the size of the bpid list.
  */
 struct bpid_list {
-    struct bpid_list_node * head;
-    int size;
+    struct bpid_list_node * head;   // Points to the node at the head of the list.
+    int size;                       // Stores the size of the bpid list.
 };
 
 // Background function prototypes needed for other functions.
