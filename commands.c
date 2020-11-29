@@ -34,6 +34,8 @@ void cmd_help() {
     printf("\tcd:\tTo change the current directory, enter \"cd\" followed\n\
         \tby the directory or path you would like to be in\n");
     printf("\tgetcwd:\tTo view your current working directory, enter \"getcwd\"\n");
+    printf("\techo:\tTo print something to a stream, enter \"echo\" followed by\n\
+        \tthe desired output\n");
     printf("\tjobs:\tTo view the processes currently running in the background,\n\
         \tenter the command \"jobs\"\n");
     printf("\tkill:\tTo kill a background process currently running, enter the\n\
@@ -111,27 +113,6 @@ void cmd_kill(char ** command, struct bpid_list * bg) {
 }
 
 /**
- * Prints whatever follows the echo command to the stream.
- * @param command the tokenized command terminated by a NULL pointer.
- */
-void cmd_echo(char ** command) {
-    if(command[1] == NULL) {
-        printf("\n");
-    }
-    int i = 1;
-    while(command[i+1] != NULL) {
-        printf("%s ", command[i]);
-        i++;
-    }
-
-    printf("%s\n", command[i]);
-}
-
-//****************************************************************************
-
-//*****************EXTERNAL COMMANDS******************************************
-
-/**
  * Determines whether then command is redirecting output to a file. 
  * Inserts a NULL pointer at the position of the file redirect token
  * in the command array.
@@ -161,6 +142,44 @@ void set_output_stream(char * filename) {
     }
     fclose(file);
 }
+
+/**
+ * Prints whatever follows the echo command to the stream.
+ * @param command the tokenized command terminated by a NULL pointer.
+ */
+void cmd_echo(char ** command) {
+    int pid = fork();
+
+    if(pid == 0) {
+        // Determine if redirect and if so set stream
+        int is_redirect = redirect_file(command);
+        if(is_redirect) {
+            set_output_stream(command[is_redirect]);
+        }
+
+        if(command[1] == NULL) {
+            printf("\n");
+        }
+        int i = 1;
+        while(command[i+1] != NULL) {
+            printf("%s ", command[i]);
+            i++;
+        }
+
+        printf("%s\n", command[i]);
+
+        exit(0);
+    } else if (pid > 0) {
+        waitpid(pid, 0, 0);
+    } else if (pid < 0) {
+        printf("\033[0;31mProcess Creation Error: Could not create process\033[0m\n");
+    }
+    
+}
+
+//****************************************************************************
+
+//*****************EXTERNAL COMMANDS******************************************
 
 /**
  * Helper function to determine if a command is supposed to run 
@@ -203,20 +222,27 @@ void cmd_extern(char ** command, struct bpid_list * bg) {
     int is_bg = cmd_is_bg(command);
     int pid = fork();
     if(pid == 0) { // child process
+
+        // Determine if command is background
         if(is_bg) {
-            command[is_bg] = NULL;
+            command[is_bg] = NULL;  // This way the parent process can
+                                    // still free the ampersand while
+                                    // execv executes the command.
         }
 
+        // Determine if redirect and if so set stream
         int is_redirect = redirect_file(command);
         if(is_redirect) {
             set_output_stream(command[is_redirect]);
         }
 
+        // Execute and error check
         if(execv(command[0], command) < 0) {
             fprintf(stdout, "\033[0;31mExternal Command Error: File \"%s\" not found\033[0m\n", command[0]);
         }
         exit(0);
     } else if(pid > 0) { // parent process
+        // Determine if command is background
         if(is_bg) {
             if(add_bp(bg, pid, 0)) {
                 printf("Created background process %d\n", pid);
@@ -227,6 +253,8 @@ void cmd_extern(char ** command, struct bpid_list * bg) {
         } else {
             waitpid(pid, 0, 0);
         }
+    } else if(pid < 0) {
+        printf("\033[0;31mProcess Creation Error: Could not create process\033[0m\n");
     }
 }
 
