@@ -66,7 +66,7 @@ void free_tokens(char **tokens) {
 void display_welcome() {
     printf("\033[1;36m");
     printf("--------------------------------------\n");
-    printf("| Welcome to the Ben and Alex Shell! |\n");
+    printf("| Welcome to the Ben and Alex SHell! |\n");
     printf("|             (aka BASH)             |\n");
     printf("--------------------------------------\n");
     printf("\033[0m");

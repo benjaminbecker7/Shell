@@ -23,37 +23,6 @@ void cmd_exit(char ** command, struct bpid_list * bg) {
 }
 
 /**
- * Determines whether then command is redirecting output to a file. 
- * Inserts a NULL pointer at the position of the file redirect token
- * in the command array.
- * @return the index of the filename in the command array if the command
- * is redirecting output, otherwise 0.
- */
-int redirect_file(char ** command) {
-    int i = 0;
-    while(command[i] != NULL) {
-        if(command[i][0] == '>' && command[i+1] != NULL) {
-            command[i] = NULL;
-            return i+1;
-        }
-        i++;
-    } 
-    return 0;
-}
-
-/**
- * Helper function that sets the output stream to a file.
- * @param filename pointer to string containing the name of the file to which output will be written.
- */
-void set_output_stream(char * filename) {
-    FILE * file = fopen(filename, "w");
-    if(dup2(fileno(file), STDOUT_FILENO) == -1) {
-        printf("\033[0;31mFile Redirect Error: File %s could not be written to\033[0m\n", filename);
-    }
-    fclose(file);
-}
-
-/**
  * Command function that outputs to stream the explanations 
  * of available commands for the shell.
  */
@@ -103,7 +72,9 @@ void cmd_cd(char ** command) {
  * Prints the current working directory to the stream.
  */
 void cmd_getcwd() {
-    printf("You are currently in %s\n", strrchr(getcwd(NULL, MAX_PATH_LENGTH), '/'));
+    char * cwd = getcwd(NULL, MAX_PATH_LENGTH);
+    printf("You are currently in %s\n", strrchr(cwd, '/'));
+    free(cwd);
 } 
 
 /**
@@ -161,24 +132,34 @@ void cmd_echo(char ** command) {
 //*****************EXTERNAL COMMANDS******************************************
 
 /**
- * Runs a shell process or script off of a file.
- * @param command the tokenized command terminated by a NULL pointer.
+ * Determines whether then command is redirecting output to a file. 
+ * Inserts a NULL pointer at the position of the file redirect token
+ * in the command array.
+ * @return the index of the filename in the command array if the command
+ * is redirecting output, otherwise 0.
  */
-void cmd_extern(char ** command) {
+int redirect_file(char ** command) {
+    int i = 0;
+    while(command[i] != NULL) {
+        if(command[i][0] == '>' && command[i+1] != NULL) {
+            command[i] = NULL;
+            return i+1;
+        }
+        i++;
+    } 
+    return 0;
+}
 
-    int pid = fork();
-    if(pid == 0) { // child process
-        int i = redirect_file(command);
-        if(i) {
-            set_output_stream(command[i]);
-        }
-        if(execv(command[0], command) < 0) {
-            fprintf(stdout, "\033[0;31mExternal Command Error: File \"%s\" not found\033[0m\n", command[0]);
-        }
-        exit(0);
-    } else if(pid > 0) { // parent process
-        waitpid(pid, 0, 0);
+/**
+ * Helper function that sets the output stream to a file.
+ * @param filename pointer to string containing the name of the file to which output will be written.
+ */
+void set_output_stream(char * filename) {
+    FILE * file = fopen(filename, "w");
+    if(dup2(fileno(file), STDOUT_FILENO) == -1) {
+        printf("\033[0;31mFile Redirect Error: File %s could not be written to\033[0m\n", filename);
     }
+    fclose(file);
 }
 
 /**
@@ -215,28 +196,36 @@ int cmd_is_bg(char ** command) {
 }
 
 /**
- * Executes a shell process or script off of a file and runs it in 
- * the background of the shell.
+ * Runs a shell process or script off of a file.
  * @param command the tokenized command terminated by a NULL pointer.
- * @param points to the list of processes currently running in the background.
  */
-void cmd_extern_bg(char ** command, struct bpid_list * bg) {
-    int bpid = fork();
-    if(bpid == 0) { // child process
-        int i = redirect_file(command);
-        if(i) {
-            set_output_stream(command[i]);
+void cmd_extern(char ** command, struct bpid_list * bg) {
+    int is_bg = cmd_is_bg(command);
+    int pid = fork();
+    if(pid == 0) { // child process
+        if(is_bg) {
+            command[is_bg] = NULL;
         }
+
+        int is_redirect = redirect_file(command);
+        if(is_redirect) {
+            set_output_stream(command[is_redirect]);
+        }
+
         if(execv(command[0], command) < 0) {
-            printf("\033[0;31mExternal Command Error: File \"%s\" not found\033[0m\n", command[0]);
+            fprintf(stdout, "\033[0;31mExternal Command Error: File \"%s\" not found\033[0m\n", command[0]);
         }
         exit(0);
-    } else if(bpid > 0) { // parent process
-        if(add_bp(bg, bpid, 0)) {
-            printf("Created background process %d\n", bpid);
+    } else if(pid > 0) { // parent process
+        if(is_bg) {
+            if(add_bp(bg, pid, 0)) {
+                printf("Created background process %d\n", pid);
+            } else {
+                printf("\033[0;31mBackground Process Error: Not enough space in background, killing process\033[0m\n");
+                kill(pid, SIGKILL);
+            }
         } else {
-            printf("\033[0;31mBackground Process Error: Not enough space in background, killing process\033[0m\n");
-            kill(bpid, SIGKILL);
+            waitpid(pid, 0, 0);
         }
     }
 }
@@ -268,13 +257,7 @@ void runcmd(char ** command, struct bpid_list * bg) {
     } else if (!strcmp(command[0], "kill")) { // command is kill cmd
         cmd_kill(command, bg);
     } else if (command[0][0] == '/') { // command is external
-        int i = cmd_is_bg(command);
-        if(i && i != -1) { // command is background
-            command[i] = NULL;
-            cmd_extern_bg(command, bg);
-        } else { // command is foreground (normal)
-            cmd_extern(command);
-        }
+        cmd_extern(command, bg);
     } else { // command is not found
         printf("\033[0;31mCommand not found. Enter \"help\" for a list of available commands\033[0m\n");
     }
