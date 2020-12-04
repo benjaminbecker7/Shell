@@ -76,7 +76,6 @@ void display_welcome() {
 }
 
 int main(int argc, char **argv) {
-    system("reset");
     display_welcome();
     // main loop for the shell
     printf("%s ", PROMPT);
