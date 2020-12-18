@@ -1,0 +1,564 @@
+clang -c -o shell.o shell.c -I. -g -Wall --std=gnu11 -fpic
+clang -c -o background.o background.c -I. -g -Wall --std=gnu11 -fpic
+clang -c -o commands.o commands.c -I. -g -Wall --std=gnu11 -fpic
+clang -o shell shell.o background.o commands.o 
+=== Command correctly executed in a separate process (01a) =====================
+[1;36m--------------------------------------
+| Welcome to the Ben and Alex SHell! |
+|             (aka BASH)             |
+--------------------------------------
+[0m[1mFor help with this shell, enter "help"
+[0mshell>  1391 /bin/sleep 5
+=== PASS (5/5) =================================================================
+
+=== Waits for command to complete (01b) ========================================
+spawn /home/aaron/teaching/cosc208/resources/proj04/grading/tests/../repo/shell
+[1;36m--------------------------------------
+| Welcome to the Ben and Alex SHell! |
+|             (aka BASH)             |
+--------------------------------------
+[0m[1mFor help with this shell, enter "help"
+[0mshell>  /bin/sleep 5
+=== PASS (3/3) =================================================================
+
+=== Non-existent command results in error message (01c) ========================
+=== FAIL (0/2) =================================================================
+
+=== Exit command terminates the shell (01d) ====================================
+[1;36m--------------------------------------
+| Welcome to the Ben and Alex SHell! |
+|             (aka BASH)             |
+--------------------------------------
+[0m[1mFor help with this shell, enter "help"
+[0mshell>  Logging out...
+=== PASS (3/3) =================================================================
+
+=== Blank command is ignored (01e) =============================================
+=== PASS (1/1) =================================================================
+
+=== Background command correctly executed (02a) ================================
+spawn /home/aaron/teaching/cosc208/resources/proj04/grading/tests/../repo/shell
+[1;36m--------------------------------------
+| Welcome to the Ben and Alex SHell! |
+|             (aka BASH)             |
+--------------------------------------
+[0m[1mFor help with this shell, enter "help"
+[0mshell>  /bin/sleep 5 &
+Created background process 1592
+shell>  === PASS (5/5) =================================================================
+
+=== Accepts commands immediately after background command (02b) ================
+spawn /home/aaron/teaching/cosc208/resources/proj04/grading/tests/../repo/shell
+[1;36m--------------------------------------
+| Welcome to the Ben and Alex SHell! |
+|             (aka BASH)             |
+--------------------------------------
+[0m[1mFor help with this shell, enter "help"
+[0mshell>  /bin/sleep 5 &
+Created background process 1619
+shell>  /usr/bin/head -n 1 /tmp/testing.in
+=== PASS (3/3) =================================================================
+
+=== Display when processes are finished (02c) ==================================
+/home/aaron/teaching/cosc208/resources/proj04/grading/tests/02c.bin
+1642 = 02c.bin
+[1;36m--------------------------------------
+| Welcome to the Ben and Alex SHell! |
+|             (aka BASH)             |
+--------------------------------------
+[0m[1mFor help with this shell, enter "help"
+[0mshell>  Created background process 1642
+shell>  shell>  1642 finished with exit code 5120
+shell>  shell>  shell>  shell>  1642 finished with exit code 5120
+=== PASS (3/3) =================================================================
+
+=== Jobs command lists active processes (02d) ==================================
+1789 = /bin/sleep 10
+1790 = /bin/sleep 5
+[1;36m--------------------------------------
+| Welcome to the Ben and Alex SHell! |
+|             (aka BASH)             |
+--------------------------------------
+[0m[1mFor help with this shell, enter "help"
+[0mshell>  Created background process 1789
+shell>  Created background process 1790
+shell>  Processes currently active: 1789, 1790
+shell>  [0mshell>  Created background process 1789
+shell>  Processes currently active: 1789, 1790
+shell>  Created background process 1790
+shell>  Processes currently active: 1789, 1790
+=== PASS (3/3) =================================================================
+
+=== Jobs command clears completed processes (02e) ==============================
+1789
+1827 = /bin/sleep 10
+1790
+1828 = /bin/sleep 5
+[1;36m--------------------------------------
+| Welcome to the Ben and Alex SHell! |
+|             (aka BASH)             |
+--------------------------------------
+[0m[1mFor help with this shell, enter "help"
+[0mshell>  Created background process 1827
+shell>  Created background process 1828
+shell>  shell>  1828 finished with exit code 0
+shell>  Processes currently active: 1827
+shell>  [0mshell>  Created background process 1827
+shell>  Processes currently active: 1827
+shell>  Created background process 1828
+=== FAIL (0/2) =================================================================
+
+=== Kill command terminates a process (02f) ====================================
+spawn /home/aaron/teaching/cosc208/resources/proj04/grading/tests/../repo/shell
+[1;36m--------------------------------------
+| Welcome to the Ben and Alex SHell! |
+|             (aka BASH)             |
+--------------------------------------
+[0m[1mFor help with this shell, enter "help"
+[0mshell>  /bin/sleep 7 &
+Created background process 1883
+shell>  jobs
+Processes currently active: 1883
+shell>  1883spawn bash
+[aaron@picard ~/teaching/cosc208/resources/proj04/grading]$ ps -e -o pid:1,cmd:1
+PID CMD
+1 /sbin/init splash
+2 [kthreadd]
+3 [ksoftirqd/0]
+7 [rcu_sched]
+8 [rcu_bh]
+9 [migration/0]
+10 [watchdog/0]
+11 [watchdog/1]
+12 [migration/1]
+13 [ksoftirqd/1]
+16 [watchdog/2]
+17 [migration/2]
+18 [ksoftirqd/2]
+20 [kworker/2:0H]
+21 [watchdog/3]
+22 [migration/3]
+23 [ksoftirqd/3]
+26 [watchdog/4]
+27 [migration/4]
+28 [ksoftirqd/4]
+31 [watchdog/5]
+32 [migration/5]
+33 [ksoftirqd/5]
+35 [kworker/5:0H]
+36 [watchdog/6]
+37 [migration/6]
+38 [ksoftirqd/6]
+40 [kworker/6:0H]
+41 [watchdog/7]
+42 [migration/7]
+43 [ksoftirqd/7]
+46 [kdevtmpfs]
+47 [netns]
+48 [perf]
+49 [khungtaskd]
+50 [writeback]
+51 [ksmd]
+52 [khugepaged]
+53 [crypto]
+54 [kintegrityd]
+55 [bioset]
+56 [kblockd]
+57 [ata_sff]
+58 [md]
+59 [devfreq_wq]
+63 [kswapd0]
+64 [vmstat]
+65 [fsnotify_mark]
+66 [ecryptfs-kthrea]
+82 [kthrotld]
+83 [acpi_thermal_pm]
+84 [bioset]
+85 [bioset]
+86 [bioset]
+87 [bioset]
+89 [bioset]
+90 [bioset]
+91 [bioset]
+92 [bioset]
+96 [ipv6_addrconf]
+110 [deferwq]
+111 [charger_manager]
+161 [kpsmoused]
+162 [scsi_eh_0]
+163 [scsi_tmf_0]
+164 [scsi_eh_1]
+165 [scsi_tmf_1]
+166 [scsi_eh_2]
+167 [scsi_tmf_2]
+168 [scsi_eh_3]
+169 [scsi_tmf_3]
+175 [bioset]
+177 [bioset]
+178 [bioset]
+179 [bioset]
+181 [scsi_eh_4]
+182 [scsi_tmf_4]
+183 [usb-storage]
+184 [uas]
+232 [bioset]
+234 [bioset]
+267 [jbd2/sda2-8]
+268 [ext4-rsv-conver]
+311 [kauditd]
+335 /lib/systemd/systemd-journald
+352 [rpciod]
+361 sleep 180
+367 /lib/systemd/systemd-udevd
+385 [loop2]
+391 [loop5]
+468 [irq/133-mei_me]
+501 /bin/bash
+669 [kworker/u17:0]
+670 [hci0]
+671 [hci0]
+673 [kworker/u17:1]
+721 [kvm-irqfd-clean]
+887 [kworker/7:0H]
+888 [kworker/2:1H]
+890 [kworker/0:2H]
+891 [kworker/5:1H]
+892 [kworker/1:2H]
+982 [jbd2/sdd1-8]
+983 [ext4-rsv-conver]
+994 [jbd2/sdb1-8]
+995 [ext4-rsv-conver]
+1002 [jbd2/sdc1-8]
+1003 [ext4-rsv-conver]
+1076 /usr/sbin/rpc.idmapd
+1319 /bin/bash ./repo.sh ben-and-alex
+1337 /sbin/rpcbind -f -w
+1338 /bin/bash /home/aaron/teaching/cosc208/resources/proj04/grading/../../grading/test.sh /home/aaron/teaching/cosc208/resources/proj04/grading
+1345 /usr/sbin/thermald --no-daemon --dbus-enable
+1351 /lib/systemd/systemd-logind
+1358 /usr/sbin/acpid
+1363 /usr/lib/bluetooth/bluetoothd
+1370 /usr/sbin/rsyslogd -n
+1374 /usr/sbin/cron -f
+1381 avahi-daemon: running [picard.local]
+1386 /usr/bin/dbus-daemon --system --address=systemd: --nofork --nopidfile --systemd-activation
+1398 /usr/sbin/openvpn --daemon ovpn-server --status /run/openvpn/server.status 10 --cd /etc/openvpn --script-security 2 --config /etc/openvpn/server.conf --writepid /run/openvpn/server.pid
+1479 /usr/local/crashplan/bin/Code42Service CP_ARGS=
+1634 /usr/sbin/apache2 -k start
+1650 /usr/sbin/apache2 -k start
+1789 /bin/sleep 10
+1791 sshd: root [priv]
+1792 sshd: root [net]
+1827 /bin/sleep 10
+1872 /bin/bash /home/aaron/teaching/cosc208/resources/proj04/grading/tests/02f.sh
+1878 /usr/bin/expect /home/aaron/teaching/cosc208/resources/proj04/grading/tests/02f.exp
+1879 /home/aaron/teaching/cosc208/resources/proj04/grading/tests/../repo/shell
+1883 [sleep] <defunct>
+1884 bash
+1944 ps -e -o pid:1,cmd:1
+2022 [kworker/6:2]
+2777 avahi-daemon: chroot helper
+2805 /usr/sbin/NetworkManager --no-daemon
+2807 /usr/sbin/ModemManager
+2857 /usr/lib/colord/colord
+2878 /usr/lib/policykit-1/polkitd --no-debug
+2978 ovsdb-server: monitoring pid 2979 (healthy)
+2979 ovsdb-server /etc/openvswitch/conf.db -vconsole:emer -vsyslog:err -vfile:info --remote=punix:/var/run/openvswitch/db.sock --private-key=db:Open_vSwitch,SSL,private_key --certificate=db:Open_vSwitch,SSL,certificate --
+2993 ovs-vswitchd: monitoring pid 2994 (healthy)
+2994 ovs-vswitchd unix:/var/run/openvswitch/db.sock -vconsole:emer -vsyslog:err -vfile:info --mlockall --no-chdir --log-file=/var/log/openvswitch/ovs-vswitchd.log --pidfile=/var/run/openvswitch/ovs-vswitchd.pid --detach -
+3134 /usr/bin/ruby /usr/bin/puppet master
+3241 /usr/bin/python3 /usr/share/unattended-upgrades/unattended-upgrade-shutdown --wait-for-signal
+3260 /usr/bin/containerd
+3264 /usr/sbin/sshd -D
+3290 /usr/sbin/rpc.mountd --manage-gids
+3309 [nfsd4_callbacks]
+3311 [lockd]
+3316 [nfsd]
+3317 [nfsd]
+3318 [nfsd]
+3320 [nfsd]
+3321 [nfsd]
+3322 [nfsd]
+3323 [nfsd]
+3324 [nfsd]
+3365 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+3380 [nfsiod]
+3388 /opt/ncs/current/lib/ncs/erts/bin/ncs.smp -K true -- -root /opt/ncs/current/lib/ncs -progname ncs -- -home / -- -cd /var/opt/ncs -smp auto -pa /opt/ncs/current/lib/ncs/patches -boot ncs -ncs true -delayed-detach -nos
+3412 erl_child_setup 1024
+3599 [kworker/7:1]
+3710 inet_gethost 4
+3711 inet_gethost 4
+3790 /opt/ncs/current/lib/ncs/lib/core/ncs/priv/snmp-config-transform -S -c -s -P 4569
+3800 java -classpath :/opt/ncs/current/java/jar/* -Dport=4569 -Djava.security.egd=file:/dev/./urandom -Dfile.encoding=UTF-8 com.tailf.ncs.NcsJVMLauncher
+4438 /opt/ncs/current/lib/ncs/lib/core/sls/priv/agentwrapper java -Xmx64M -Xms16M -Djava.security.egd=file:/dev/./urandom -jar /opt/ncs/current/lib/ncs/lib/core/sls/priv/webapp-runner.jar /opt/ncs/current/lib/ncs/lib/core
+4439 java -Xmx64M -Xms16M -Djava.security.egd=file:/dev/./urandom -jar /opt/ncs/current/lib/ncs/lib/core/sls/priv/webapp-runner.jar /opt/ncs/current/lib/ncs/lib/core/sls/priv/smartagent --port 0 --path /smartagent --shutd
+4467 [cifsiod]
+4474 [cifsd]
+4516 /usr/sbin/apache2 -k start
+4517 /usr/sbin/apache2 -k start
+4685 [nfsv4.0-svc]
+4709 /usr/sbin/libvirtd
+4816 /usr/sbin/irqbalance --pid=/var/run/irqbalance.pid
+4843 /usr/sbin/ntpd -p /var/run/ntpd.pid -g -u 123:132
+4858 /usr/sbin/lightdm
+4879 /usr/sbin/in.tftpd --listen --user tftp --address :69 --secure --create --ipv4 --verbose /mnt/internal1/tftp
+4926 /usr/lib/xorg/Xorg -core :0 -seat seat0 -auth /var/run/lightdm/root/:0 -nolisten tcp vt7 -novtswitch
+4927 /sbin/agetty --noclear tty1 linux
+4956 /usr/sbin/slapd -h ldap:/// ldapi:/// -g openldap -u openldap -F /etc/ldap/slapd.d
+4971 lightdm --session-child 16 19
+4976 /lib/systemd/systemd --user
+4978 (sd-pam)
+4985 /bin/sh /usr/lib/lightdm/lightdm-greeter-session /usr/sbin/unity-greeter
+4990 /usr/bin/dbus-daemon --fork --print-pid 5 --print-address 7 --session
+4991 /usr/sbin/unity-greeter
+4993 /usr/lib/at-spi2-core/at-spi-bus-launcher --launch-immediately
+4998 /usr/bin/dbus-daemon --config-file=/etc/at-spi2/accessibility.conf --nofork --print-address 3
+5001 /usr/lib/at-spi2-core/at-spi2-registryd --use-gnome-session
+5007 /usr/lib/gvfs/gvfsd
+5012 /usr/lib/gvfs/gvfsd-fuse /run/user/108/gvfs -f -o big_writes
+5023 /usr/lib/dconf/dconf-service
+5075 lightdm --session-child 12 19
+5082 upstart --user --startup-event indicator-services-start
+5084 nm-applet
+5087 /usr/lib/unity-settings-daemon/unity-settings-daemon
+5089 /usr/lib/x86_64-linux-gnu/indicator-messages/indicator-messages-service
+5090 /usr/lib/x86_64-linux-gnu/indicator-bluetooth/indicator-bluetooth-service
+5091 /usr/lib/x86_64-linux-gnu/indicator-power/indicator-power-service
+5092 /usr/lib/x86_64-linux-gnu/indicator-datetime/indicator-datetime-service
+5093 /usr/lib/x86_64-linux-gnu/indicator-keyboard/indicator-keyboard-service --use-gtk
+5094 /usr/lib/x86_64-linux-gnu/indicator-sound/indicator-sound-service
+5095 /usr/lib/x86_64-linux-gnu/indicator-session/indicator-session-service
+5105 /usr/lib/x86_64-linux-gnu/indicator-application/indicator-application-service
+5149 /usr/bin/pulseaudio --start --log-target=syslog
+5156 /usr/lib/rtkit/rtkit-daemon
+5192 [krfcommd]
+5200 /usr/lib/x86_64-linux-gnu/notify-osd
+5201 /usr/lib/upower/upowerd
+6136 sh -c .//filter.py '{"condition":["c","d","","","","","","","","","","","","","","","","","",""],"phrase":["red","benefit","","","","","","","","","","","","","","","","","",""],"impact":["-10","-5","","","","","",""
+6137 python3 .//filter.py {"condition":["c","d","","","","","","","","","","","","","","","","","",""],"phrase":["red","benefit","","","","","","","","","","","","","","","","","",""],"impact":["-10","-5","","","","","","
+6598 [kworker/u16:1]
+6975 [kworker/6:1H]
+7918 /usr/sbin/mysqld
+8453 [loop6]
+8473 /usr/lib/snapd/snapd
+10065 sh -c .//filter.py '{"condition":["c","","","","","","","","","","","","","","","","","","",""],"phrase":["red","","","","","","","","","","","","","","","","","","",""],"impact":["-10","","","","","","","","","",""
+10066 python3 .//filter.py {"condition":["c","","","","","","","","","","","","","","","","","","",""],"phrase":["red","","","","","","","","","","","","","","","","","","",""],"impact":["-10","","","","","","","","","","
+10358 [kworker/1:2]
+10480 [loop4]
+11027 [loop1]
+11190 [kworker/2:2]
+11317 [kworker/4:0]
+12216 [kworker/3:1H]
+13156 [kworker/1:1H]
+13634 [kworker/2:0]
+13753 sh -c .//filter.py '{"condition":["c","","","","","","","","","","","","","","","","","","",""],"phrase":["climate","","","","","","","","","","","","","","","","","","",""],"impact":["-10","","","","","","","","","
+13754 python3 .//filter.py {"condition":["c","","","","","","","","","","","","","","","","","","",""],"phrase":["climate","","","","","","","","","","","","","","","","","","",""],"impact":["-10","","","","","","","","",
+13771 /bin/sh /usr/lib/apt/apt.systemd.daily install
+13776 /bin/sh /usr/lib/apt/apt.systemd.daily lock_is_held install
+13808 /usr/bin/python3 /usr/bin/unattended-upgrade
+14026 /usr/bin/python3 /usr/bin/unattended-upgrade
+14056 /usr/lib/accountsservice/accounts-daemon
+14104 /usr/bin/dpkg --status-fd 12 --configure libaccountsservice0:amd64 accountsservice:amd64
+14105 /bin/sh /var/lib/dpkg/info/accountsservice.postinst configure 0.6.40-2ubuntu11.3
+14117 [kworker/5:1]
+14129 perl /usr/bin/deb-systemd-invoke start accounts-daemon.service
+14132 /bin/systemctl start accounts-daemon.service
+14162 sh -c .//filter.py '{"condition":["c","","","","","","","","","","","","","","","","","","",""],"phrase":["climate","","","","","","","","","","","","","","","","","","",""],"impact":["-10","","","","","","","","","
+14163 python3 .//filter.py {"condition":["c","","","","","","","","","","","","","","","","","","",""],"phrase":["climate","","","","","","","","","","","","","","","","","","",""],"impact":["-10","","","","","","","","",
+14395 /usr/sbin/apache2 -k start
+16229 sh -c .//filter.py '{"condition":["d","","","","","","","","","","","","","","","","","","",""],"phrase":["climate","","","","","","","","","","","","","","","","","","",""],"impact":["-10","","","","","","","","","
+16230 python3 .//filter.py {"condition":["d","","","","","","","","","","","","","","","","","","",""],"phrase":["climate","","","","","","","","","","","","","","","","","","",""],"impact":["-10","","","","","","","","",
+16670 /usr/sbin/apache2 -k start
+16671 /usr/sbin/apache2 -k start
+16672 /usr/sbin/apache2 -k start
+16673 /usr/sbin/apache2 -k start
+16674 /usr/sbin/apache2 -k start
+16705 /usr/sbin/cupsd -l
+16707 /usr/sbin/cups-browsed
+17105 [kworker/4:0H]
+17521 [kworker/3:3]
+17558 [kworker/3:0]
+19408 [kworker/6:3]
+19987 [kworker/7:3]
+20247 [kworker/0:2]
+20432 [kworker/4:1H]
+20994 [xfsalloc]
+20995 [xfs_mru_cache]
+21006 [jfsIO]
+21007 [jfsCommit]
+21008 [jfsCommit]
+21009 [jfsCommit]
+21010 [jfsCommit]
+21011 [jfsCommit]
+21012 [jfsCommit]
+21013 [jfsCommit]
+21014 [jfsCommit]
+21015 [jfsSync]
+21053 [bioset]
+22014 /lib/systemd/systemd --user
+22018 (sd-pam)
+22158 [kworker/u16:0]
+22251 sh /home/aaron/.vscode-server/bin/940b5f4bb5fa47866a54529ed759d95d09ee80be/server.sh --start-server --host=127.0.0.1 --enable-remote-auto-shutdown --disable-telemetry --port=0
+22258 /home/aaron/.vscode-server/bin/940b5f4bb5fa47866a54529ed759d95d09ee80be/node /home/aaron/.vscode-server/bin/940b5f4bb5fa47866a54529ed759d95d09ee80be/out/vs/server/main.js --start-server --host=127.0.0.1 --enable-rem
+22358 /home/aaron/.vscode-server/bin/940b5f4bb5fa47866a54529ed759d95d09ee80be/node /home/aaron/.vscode-server/bin/940b5f4bb5fa47866a54529ed759d95d09ee80be/out/bootstrap-fork --type=watcherService
+22365 /home/aaron/.vscode-server/bin/940b5f4bb5fa47866a54529ed759d95d09ee80be/node /home/aaron/.vscode-server/bin/940b5f4bb5fa47866a54529ed759d95d09ee80be/out/bootstrap-fork --type=extensionHost --uriTransformerPath=/home
+22386 /bin/bash
+22483 /bin/sh -c "/home/aaron/.vscode-server/extensions/ms-vsliveshare.vsliveshare-1.0.3303/dotnet_modules/vsls-agent" --autoexit --enableRpcInitialize --pipe vscode.8649f5d12f122bffa3d20918a6e17aa2 --service https://prod
+22484 /home/aaron/.vscode-server/extensions/ms-vsliveshare.vsliveshare-1.0.3303/dotnet_modules/vsls-agent --autoexit --enableRpcInitialize --pipe vscode.8649f5d12f122bffa3d20918a6e17aa2 --service https://prod.liveshare.vs
+22891 /bin/bash
+23165 [kworker/4:2]
+23349 [kworker/7:2H]
+23869 [kworker/3:2H]
+24554 [kworker/1:3]
+27613 [kworker/5:0]
+28100 sshd: aaron [priv]
+28137 sshd: aaron@notty
+28141 -bash
+28173 /home/aaron/.vscode-server/extensions/ms-vscode.cpptools-1.1.3/bin/cpptools
+28203 bash
+28943 [kworker/u16:2]
+30557 [kworker/0:3]
+31688 /usr/sbin/dnsmasq -x /var/run/dnsmasq/dnsmasq.pid -u dnsmasq -r /var/run/dnsmasq/resolv.conf -7 /etc/dnsmasq.d,.dpkg-dist,.dpkg-old,.dpkg-new --local-service --trust-anchor=.,19036,8,2,49aac11d7b6f6446702e54a1607371
+31874 /home/aaron/.vscode-server/extensions/ms-vscode.cpptools-1.1.3/bin/cpptools-srv 28173 6
+32031 [kworker/0:0H]
+32082 /usr/sbin/apache2 -k start
+32746 [loop3]
+[aaron@picard ~/teaching/cosc208/resources/proj04/grading]$ === PASS (3/3) =================================================================
+
+=== Kill command does nothing with an invalid PID (02g) ========================
+=== PASS (1/1) =================================================================
+
+=== Return values for system calls are checked (03a) ===========================
+fork
+exec
+kill
+wait
+#include <string.h>
+#include <sys/wait.h>
+#include "background.h"
+=== MANUAL (?/2) ===============================================================
+
+=== Compiles without warnings (03b) ============================================
+2,4c2
+< clang -c -o background.o background.c -I. -g -Wall --std=gnu11 -fpic
+< clang -c -o commands.o commands.c -I. -g -Wall --std=gnu11 -fpic
+< clang -o shell shell.o background.o commands.o 
+---
+> clang -o shell shell.o 
+Warnings during compilation
+=== FAIL (0/3) =================================================================
+
+=== Multiple functions (M) =====================================================
+=== MANUAL (?/2) ===============================================================
+
+=== No memory errors (03c) =====================================================
+==2124== Memcheck, a memory error detector
+==2124== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
+==2124== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
+==2124== Command: /home/aaron/teaching/cosc208/resources/proj04/grading/tests/../repo/shell
+==2124== 
+[1;36m--------------------------------------
+| Welcome to the Ben and Alex SHell! |
+|             (aka BASH)             |
+--------------------------------------
+[0m[1mFor help with this shell, enter "help"
+[0mshell>    PID TTY          TIME CMD
+  501 pts/11   00:00:00 bash
+ 1319 pts/11   00:00:00 repo.sh
+ 1338 pts/11   00:00:00 test.sh
+ 2121 pts/11   00:00:00 03c.sh
+ 2124 pts/11   00:00:00 memcheck-amd64-
+ 2125 pts/11   00:00:00 tee
+ 2126 pts/11   00:00:00 grep
+ 2127 pts/11   00:00:00 03c.sh
+ 2128 pts/11   00:00:00 cat
+ 2138 pts/11   00:00:00 ps
+22386 pts/11   00:00:01 bash
+shell>  Created background process 2139
+shell>  Processes currently active: 2139
+shell>  ==2124== 
+==2124== HEAP SUMMARY:
+==2124==     in use at exit: 44 bytes in 3 blocks
+==2124==   total heap usage: 19 allocs, 16 frees, 8,390 bytes allocated
+==2124== 
+==2124== For a detailed leak analysis, rerun with: --leak-check=full
+==2124== 
+==2124== For counts of detected and suppressed errors, rerun with: -v
+==2124== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+==2124== ERROR SUMMARY: 0 errors from 0 contexts (suppressed: 0 from 0)
+=== PASS (2/2) =================================================================
+
+=== No memory leaks (03d) ======================================================
+==2158== Memcheck, a memory error detector
+==2158== Copyright (C) 2002-2015, and GNU GPL'd, by Julian Seward et al.
+==2158== Using Valgrind-3.11.0 and LibVEX; rerun with -h for copyright info
+==2158== Command: /home/aaron/teaching/cosc208/resources/proj04/grading/tests/../repo/shell
+==2158== 
+[1;36m--------------------------------------
+| Welcome to the Ben and Alex SHell! |
+|             (aka BASH)             |
+--------------------------------------
+[0m[1mFor help with this shell, enter "help"
+[0mshell>    PID TTY          TIME CMD
+  501 pts/11   00:00:00 bash
+ 1319 pts/11   00:00:00 repo.sh
+ 1338 pts/11   00:00:00 test.sh
+ 2155 pts/11   00:00:00 03d.sh
+ 2158 pts/11   00:00:00 memcheck-amd64-
+ 2159 pts/11   00:00:00 tee
+ 2160 pts/11   00:00:00 grep
+ 2161 pts/11   00:00:00 03d.sh
+ 2162 pts/11   00:00:00 cat
+ 2163 pts/11   00:00:00 ps
+22386 pts/11   00:00:01 bash
+shell>  Created background process 2164
+shell>  Processes currently active: 2164
+shell>  ==2158== 
+==2158== HEAP SUMMARY:
+==2158==     in use at exit: 44 bytes in 3 blocks
+==2158==   total heap usage: 19 allocs, 16 frees, 8,390 bytes allocated
+==2158== 
+==2158== 4 bytes in 1 blocks are indirectly lost in loss record 1 of 3
+==2158==    at 0x4C2DB8F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2158==    by 0x400F79: add_bp (background.c:33)
+==2158==    by 0x4019A2: cmd_extern (commands.c:247)
+==2158==    by 0x401B98: runcmd (commands.c:288)
+==2158==    by 0x400E99: main (shell.c:92)
+==2158== 
+==2158== 24 bytes in 1 blocks are indirectly lost in loss record 2 of 3
+==2158==    at 0x4C2DB8F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2158==    by 0x400F60: add_bp (background.c:31)
+==2158==    by 0x4019A2: cmd_extern (commands.c:247)
+==2158==    by 0x401B98: runcmd (commands.c:288)
+==2158==    by 0x400E99: main (shell.c:92)
+==2158== 
+==2158== 44 (16 direct, 28 indirect) bytes in 1 blocks are definitely lost in loss record 3 of 3
+==2158==    at 0x4C2DB8F: malloc (in /usr/lib/valgrind/vgpreload_memcheck-amd64-linux.so)
+==2158==    by 0x400F03: init_background (background.c:16)
+==2158==    by 0x400E34: main (shell.c:85)
+==2158== 
+==2158== LEAK SUMMARY:
+==2158==    definitely lost: 16 bytes in 1 blocks
+==2158==    indirectly lost: 28 bytes in 2 blocks
+==2158==      possibly lost: 0 bytes in 0 blocks
+==2158==    still reachable: 0 bytes in 0 blocks
+==2158==         suppressed: 0 bytes in 0 blocks
+==2158== 
+==2158== For counts of detected and suppressed errors, rerun with: -v
+==2158== ERROR SUMMARY: 1 errors from 1 contexts (suppressed: 0 from 0)
+=== FAIL (0/2) =================================================================
+
+=== Contains comments (03e) ====================================================
+shell.c
++/**
++/**
++    struct bpid_list * bg = init_background(); // malloc the background struct 
++        manage_background(bg); // check background processes
++        char **command = tokenize(buffer, " \t\n"); // tokenize input
++        runcmd(command, bg); // run command
++        free_tokens(command); // 
+=== MANUAL (?/2) ===============================================================
+
+=== Multiple commits to git repo (03f) =========================================
+=== PASS (3/3) =================================================================
+

@@ -1,0 +1,36 @@
+
+PART 1
+-------------------------------------------------------------------------
+ Command correctly executed in a separate process           [PASS]   5/5
+ Waits for command to complete                              [PASS]   3/3
+ Non-existent command results in error message              [PASS]   2/2
+ Exit command terminates the shell                          [PASS]   3/3
+ Blank command is ignored                                   [PASS]   1/1
+-------------------------------------------------------------------------
+                                                PART 1 TOTAL        14/14
+
+PART 2
+-------------------------------------------------------------------------
+ Background command correctly executed                      [PASS]   5/5
+ Accepts commands immediately after background command      [PASS]   3/3
+ Display when processes are finished                        [PASS]   3/3
+ Jobs command lists active processes                        [PASS]   3/3
+ Jobs command clears completed processes                    [PASS]   2/2
+ Kill command terminates a process                          [PASS]   3/3
+ Kill command does nothing with an invalid PID              [PASS]   1/1
+-------------------------------------------------------------------------
+                                                PART 2 TOTAL        20/20
+
+SHELL STYLE
+-------------------------------------------------------------------------
+ Return values for system calls are checked                 [PASS]   2/2
+ Compiles without warnings                                  [PASS]   3/3
+ Multiple functions                                         [PASS]   2/2
+ No memory errors                                           [PASS]   2/2
+ No memory leaks                                            [PART]   1/2
+ Contains comments                                          [PASS]   2/2
+ Multiple commits to git repo                               [PASS]   3/3
+-------------------------------------------------------------------------
+                                                 STYLE TOTAL        15/16
+
+                                                       TOTAL        49/50
